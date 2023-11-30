@@ -154,13 +154,6 @@ begin
         read_reg1 <= "01000"; 
         wait for 20 ns;
 
-        -- Test Case 10: Simultaneous Write to Multiple Registers (if supported)
-        -- Note: Implement this test case based on your design's capability
-
-        -- End the test
-        wait;
-
-
         -- End the test
         wait;
     end process;

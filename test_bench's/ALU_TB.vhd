@@ -1,8 +1,9 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+use ieee.numeric_std.all;
 
 entity ALU_tb is
+-- Testbench entity does not have ports
 end ALU_tb;
 
 architecture behavior of ALU_tb is 
@@ -10,31 +11,30 @@ architecture behavior of ALU_tb is
     -- Component Declaration for the Unit Under Test (UUT)
     component ALU
     port(
-        operand_a : in std_logic_vector(31 downto 0);
-        operand_b : in std_logic_vector(31 downto 0);
-        alu_ctrl : in std_logic_vector(3 downto 0);  -- Adjust based on your ALU control signals
-        result : out std_logic_vector(31 downto 0);
-        zero : out std_logic
+        a : in STD_LOGIC_VECTOR(31 downto 0);
+        b : in STD_LOGIC_VECTOR(31 downto 0);
+        funct3 : in STD_LOGIC_VECTOR(2 downto 0);
+        result : inout STD_LOGIC_VECTOR(31 downto 0);
+        zero : out STD_LOGIC
     );
     end component;
 
     -- Inputs
-    signal operand_a : std_logic_vector(31 downto 0) := (others => '0');
-    signal operand_b : std_logic_vector(31 downto 0) := (others => '0');
-    signal alu_ctrl : std_logic_vector(3 downto 0) := (others => '0');
+    signal a : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
+    signal b : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
+    signal funct3 : STD_LOGIC_VECTOR(2 downto 0) := (others => '0');
 
     -- Outputs
-    signal result : std_logic_vector(31 downto 0);
-    signal zero : std_logic;
+    signal result : STD_LOGIC_VECTOR(31 downto 0);
+    signal zero : STD_LOGIC;
 
 begin
-
     -- Instantiate the Unit Under Test (UUT)
     uut: ALU
         port map (
-            operand_a => operand_a,
-            operand_b => operand_b,
-            alu_ctrl => alu_ctrl,
+            a => a,
+            b => b,
+            funct3 => funct3,
             result => result,
             zero => zero
         );
@@ -43,66 +43,66 @@ begin
     stim_proc: process
     begin
         -- Test Case 1: Add
-        operand_a <= std_logic_vector(to_unsigned(15, 32));
-        operand_b <= std_logic_vector(to_unsigned(10, 32));
-        alu_ctrl <= "0000";  -- assuming '0000' represents add
+        a <= std_logic_vector(to_signed(10, 32));
+        b <= std_logic_vector(to_signed(15, 32));
+        funct3 <= "000";
         wait for 10 ns;
 
         -- Test Case 2: Subtract
-        operand_a <= std_logic_vector(to_unsigned(20, 32));
-        operand_b <= std_logic_vector(to_unsigned(5, 32));
-        alu_ctrl <= "0001";  -- assuming '0001' represents subtract
+        a <= std_logic_vector(to_signed(20, 32));
+        b <= std_logic_vector(to_signed(5, 32));
+        funct3 <= "001";
         wait for 10 ns;
 
-        -- Test Case 3: Logical AND
-        operand_a <= std_logic_vector(to_unsigned(15, 32));  -- Example operands
-        operand_b <= std_logic_vector(to_unsigned(7, 32));
-        alu_ctrl <= "0010";  -- Control code for AND
+        -- Test Case 3: AND
+        a <= std_logic_vector(to_signed(12, 32));
+        b <= std_logic_vector(to_signed(9, 32));
+        funct3 <= "010";
         wait for 10 ns;
 
-        -- Test Case 4: Logical OR
-        operand_a <= std_logic_vector(to_unsigned(12, 32));
-        operand_b <= std_logic_vector(to_unsigned(5, 32));
-        alu_ctrl <= "0011";  -- Control code for OR
+        -- Test Case 4: OR
+        a <= std_logic_vector(to_signed(5, 32));
+        b <= std_logic_vector(to_signed(10, 32));
+        funct3 <= "011";
         wait for 10 ns;
 
-        -- Test Case 5: Logical XOR
-        operand_a <= std_logic_vector(to_unsigned(10, 32));
-        operand_b <= std_logic_vector(to_unsigned(6, 32));
-        alu_ctrl <= "0100";  -- Control code for XOR
+        -- Test Case 5: XOR
+        a <= std_logic_vector(to_signed(15, 32));
+        b <= std_logic_vector(to_signed(6, 32));
+        funct3 <= "100";
         wait for 10 ns;
 
-        -- Test Case 6: Shift Left Logical
-        operand_a <= std_logic_vector(to_unsigned(4, 32));
-        operand_b <= std_logic_vector(to_unsigned(2, 32));  -- Shift by 2 bits
-        alu_ctrl <= "0101";  -- Control code for SLL
+        -- Test Case 6: Shift Left Logical (SLL)
+        a <= std_logic_vector(to_signed(3, 32));
+        b <= std_logic_vector(to_signed(2, 32));  -- Shift by 2
+        funct3 <= "101";
         wait for 10 ns;
 
-        -- Test Case 7: Shift Right Logical
-        operand_a <= std_logic_vector(to_unsigned(16, 32));
-        operand_b <= std_logic_vector(to_unsigned(2, 32));  -- Shift by 2 bits
-        alu_ctrl <= "0110";  -- Control code for SRL
+        -- Test Case 7: Shift Right Logical (SRL)
+        a <= std_logic_vector(to_signed(8, 32));
+        b <= std_logic_vector(to_signed(1, 32));  -- Shift by 1
+        funct3 <= "110";
         wait for 10 ns;
 
-        -- Test Case 8: Arithmetic Shift Right
-        operand_a <= std_logic_vector(to_unsigned(128, 32));
-        operand_b <= std_logic_vector(to_unsigned(1, 32));  -- Shift by 1 bit
-        alu_ctrl <= "0111";  -- Control code for SRA
+        -- Test Case 8: Additional test for ADD
+        a <= std_logic_vector(to_signed(25, 32));
+        b <= std_logic_vector(to_signed(17, 32));
+        funct3 <= "000";
         wait for 10 ns;
 
-        -- Test Case 9: Greater Than Comparison (Subtract and Check Zero Flag)
-        operand_a <= std_logic_vector(to_unsigned(20, 32));
-        operand_b <= std_logic_vector(to_unsigned(10, 32));
-        alu_ctrl <= "1000";  -- Custom Control code for GT comparison
+        -- Test Case 9: Additional test for SUB
+        a <= std_logic_vector(to_signed(50, 32));
+        b <= std_logic_vector(to_signed(20, 32));
+        funct3 <= "001";
         wait for 10 ns;
 
-        -- Test Case 10: Equality Check (Subtract and Check Zero Flag)
-        operand_a <= std_logic_vector(to_unsigned(15, 32));
-        operand_b <= std_logic_vector(to_unsigned(15, 32));
-        alu_ctrl <= "1001";  -- Custom Control code for EQ comparison
+        -- Test Case 10: Additional test for AND
+        a <= std_logic_vector(to_signed(14, 32));
+        b <= std_logic_vector(to_signed(5, 32));
+        funct3 <= "010";
         wait for 10 ns;
-          
-        -- End the test
+
+        wait;
     end process;
 
 end behavior;
